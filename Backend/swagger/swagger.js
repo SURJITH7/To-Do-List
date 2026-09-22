@@ -23,3 +23,5 @@ const options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 module.exports = swaggerSpec;
+
+// http://localhost:7200/api-docs

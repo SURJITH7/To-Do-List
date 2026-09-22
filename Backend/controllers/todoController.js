@@ -3,12 +3,13 @@ const Todo = require("../models/Todo");
 // CREATE TODO
 const createTodo = async (req, res) => {
   try {
-    const { title, description, priority } = req.body;
+    const { title, description, priority, status } = req.body;
 
     const todo = await Todo.create({
       title,
       description,
-      priority
+      priority,
+      status
     });
 
     res.status(201).json({
@@ -75,7 +76,7 @@ const getTodoById = async (req, res) => {
 // UPDATE TODO
 const updateTodo = async (req, res) => {
   try {
-    const { title, description,priority, completed } = req.body;
+    const { title, description,priority, completed, status, order } = req.body;
 
     const todo = await Todo.findByIdAndUpdate(
       req.params.id,
@@ -83,7 +84,9 @@ const updateTodo = async (req, res) => {
         title,
         description,
         priority,
-        completed
+        completed,
+        status,
+        order
       },
       {
         returnDocument: "after",

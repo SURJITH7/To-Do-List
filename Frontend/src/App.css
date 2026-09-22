@@ -108,17 +108,6 @@ body {
   margin-bottom: 0;
 }
 
-
-.section-number {
-  font-size: 12px;
-  font-weight: bold;
-
-  color: #999;
-
-  padding-top: 5px;
-}
-
-
 .section-heading h2 {
   font-size: 22px;
   margin-bottom: 5px;
@@ -505,7 +494,7 @@ body {
 
   justify-content: space-between;
 
-  color: #999;
+  color: #070707;
 
   font-size: 12px;
 }
@@ -713,4 +702,135 @@ body {
     text-align: center;
   }
 
+}
+
+/* KANBAN BOARD */
+
+.kanban-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.kanban-column {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  min-height: 400px;
+  overflow: hidden;
+}
+
+.kanban-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 18px;
+  border-bottom: 1px solid #eee;
+}
+
+.column-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.column-title h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.column-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.column-dot.blue {
+  background: #3b82f6;
+}
+
+.column-dot.orange {
+  background: #f59e0b;
+}
+
+.column-dot.green {
+  background: #22c55e;
+}
+
+.task-count {
+  background: #f1f1f1;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.kanban-tasks {
+  padding: 12px;
+  min-height: 350px;
+}
+
+.kanban-task {
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 10px;
+  cursor: grab;
+  transition: 0.2s;
+}
+
+.kanban-task:hover {
+  transform: translateY(-2px);
+}
+
+.kanban-task.dragging {
+  opacity: 0.5;
+}
+
+.task-top {
+  display: flex;
+  justify-content: space-between;
+}
+
+.task-top h3 {
+  margin: 0 0 5px;
+  font-size: 15px;
+}
+
+.task-top p {
+  margin: 0;
+  color: #777;
+  font-size: 13px;
+}
+
+.drag-handle {
+  color: #999;
+  font-size: 20px;
+  cursor: grab;
+}
+
+.task-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.drop-zone {
+  border: 1px dashed #ccc;
+  border-radius: 10px;
+  padding: 30px;
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 800px) {
+  .kanban-board {
+    grid-template-columns: 1fr;
+  }
 }

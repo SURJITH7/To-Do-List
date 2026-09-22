@@ -4,20 +4,79 @@ const TodoItem = ({
   todo,
   onDelete,
   onToggle,
-  onUpdate
+  onUpdate,
+  onMove
 }) => {
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const [title, setTitle] = useState(todo.title);
+  const [title, setTitle] = useState(
+    todo.title
+  );
 
   const [description, setDescription] = useState(
-    todo.description
+    todo.description || ""
   );
 
   const [priority, setPriority] = useState(
     todo.priority || "medium"
   );
+
+
+  // DRAG START
+  const handleDragStart = (e) => {
+
+    e.dataTransfer.setData(
+      "todoId",
+      todo._id
+    );
+
+    e.dataTransfer.effectAllowed = "move";
+
+    e.currentTarget.classList.add(
+      "dragging"
+    );
+  };
+
+
+  // DRAG END
+  const handleDragEnd = (e) => {
+
+    e.currentTarget.classList.remove(
+      "dragging"
+    );
+  };
+
+
+  // DROP ON ANOTHER TASK
+  const handleDrop = (e) => {
+
+    e.preventDefault();
+
+    e.stopPropagation();
+
+    const draggedId =
+      e.dataTransfer.getData("todoId");
+
+    if (!draggedId) return;
+
+    if (draggedId === todo._id) return;
+
+    const status =
+      todo.status || "todo";
+
+    onMove(
+      draggedId,
+      todo._id,
+      status
+    );
+  };
+
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
 
 
   // SAVE EDIT
@@ -32,7 +91,9 @@ const TodoItem = ({
       title,
       description,
       priority,
-      completed: todo.completed
+      completed: todo.completed,
+      status: todo.status || "todo",
+      order: todo.order || 0
     });
 
     setIsEditing(false);
@@ -42,12 +103,21 @@ const TodoItem = ({
   return (
 
     <div
-      className={`todo-item ${
-        todo.completed ? "completed" : ""
+      className={`kanban-task ${
+        todo.completed
+          ? "completed"
+          : ""
       }`}
+      draggable={!isEditing}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
     >
 
       {isEditing ? (
+
+        /* EDIT MODE */
 
         <div className="edit-form">
 
@@ -59,7 +129,6 @@ const TodoItem = ({
             }
           />
 
-
           <input
             type="text"
             value={description}
@@ -67,7 +136,6 @@ const TodoItem = ({
               setDescription(e.target.value)
             }
           />
-
 
           <select
             value={priority}
@@ -93,7 +161,9 @@ const TodoItem = ({
 
           <div className="todo-actions">
 
-            <button onClick={handleUpdate}>
+            <button
+              onClick={handleUpdate}
+            >
               Save
             </button>
 
@@ -111,68 +181,74 @@ const TodoItem = ({
 
       ) : (
 
+        /* NORMAL MODE */
+
         <>
 
-          <div className="todo-content">
+          <div className="task-top">
 
-            <div className="todo-title-row">
+            <div>
 
               <h3>
                 {todo.title}
               </h3>
 
-              <span
-                className={`priority-badge ${todo.priority}`}
-              >
-                {todo.priority || "medium"}
-              </span>
+              <p>
+                {todo.description}
+              </p>
 
             </div>
 
 
-            <p>
-              {todo.description}
-            </p>
+            {/* DRAG HANDLE */}
 
-
-            <span>
-              {todo.completed
-                ? "Completed"
-                : "Active"}
+            <span className="drag-handle">
+              ⠿
             </span>
 
           </div>
 
 
-          <div className="todo-actions">
+          <div className="task-bottom">
 
-            <button
-              onClick={() =>
-                onToggle(todo)
-              }
+            <span
+              className={`priority-badge ${
+                todo.priority || "medium"
+              }`}
             >
-              {todo.completed
-                ? "Undo"
-                : "Complete"}
-            </button>
+              {todo.priority || "medium"}
+            </span>
 
 
-            <button
-              onClick={() =>
-                setIsEditing(true)
-              }
-            >
-              Edit
-            </button>
+            <div className="todo-actions">
 
+              <button
+                onClick={() =>
+                  onToggle(todo)
+                }
+              >
+                {todo.completed
+                  ? "Undo"
+                  : "Complete"}
+              </button>
 
-            <button
-              onClick={() =>
-                onDelete(todo._id)
-              }
-            >
-              Delete
-            </button>
+              <button
+                onClick={() =>
+                  setIsEditing(true)
+                }
+              >
+                Edit
+              </button>
+
+              <button
+                onClick={() =>
+                  onDelete(todo._id)
+                }
+              >
+                Delete
+              </button>
+
+            </div>
 
           </div>
 

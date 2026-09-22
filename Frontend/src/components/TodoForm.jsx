@@ -19,8 +19,7 @@ const TodoForm = ({ fetchTodos }) => {
 
     try {
 
-      await axios.post(
-        "http://localhost:7200/api/todos",
+      await axios.post("http://localhost:7200/api/todos",
         {
           title,
           description,
@@ -36,10 +35,7 @@ const TodoForm = ({ fetchTodos }) => {
 
     } catch (error) {
 
-      console.log(
-        "Error creating todo:",
-        error
-      );
+      console.log("Error creating todo:", error);
 
     }
   };
@@ -47,10 +43,7 @@ const TodoForm = ({ fetchTodos }) => {
 
   return (
 
-    <form
-      className="todo-form"
-      onSubmit={handleSubmit}
-    >
+    <form className="todo-form" onSubmit={handleSubmit}>
 
       <div className="input-group">
 
@@ -60,7 +53,7 @@ const TodoForm = ({ fetchTodos }) => {
 
         <input
           type="text"
-          placeholder="e.g. Complete React project"
+          placeholder="Enter Your Task..."
           value={title}
           onChange={(e) =>
             setTitle(e.target.value)

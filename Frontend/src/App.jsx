@@ -12,68 +12,72 @@ const App = () => {
   const [filter, setFilter] = useState("all");
 
 
-  // GET ALL TODOS
+
   const fetchTodos = async () => {
+
     try {
 
-      const response = await axios.get(
-        "http://localhost:7200/api/todos"
-      );
-
+      const response = await axios.get("http://localhost:7200/api/todos");
       setTodos(response.data.todos);
-
+    
     } catch (error) {
-
-      console.log("Error fetching todos:", error);
-
+      console.log(
+        "Error fetching todos:", error);
     }
   };
 
-
-  // DELETE TODO
+  
   const deleteTodo = async (id) => {
     try {
-
-      await axios.delete(
-        `http://localhost:7200/api/todos/${id}`
-      );
-
+      await axios.delete(`http://localhost:7200/api/todos/${id}`);
       fetchTodos();
 
     } catch (error) {
 
-      console.log("Error deleting todo:", error);
-
+      console.log(
+        "Error deleting todo:", error);
     }
+
   };
 
 
-  // COMPLETE / UNCOMPLETE TODO
+
   const toggleTodo = async (todo) => {
     try {
-
-      await axios.put(
-        `http://localhost:7200/api/todos/${todo._id}`,
+      const currentStatus = todo.status || "todo";
+      let newStatus;
+      if (todo.completed) {
+        newStatus = "todo";
+      } else {
+        newStatus = "done";
+      }
+      await axios.put(`http://localhost:7200/api/todos/${todo._id}`,
         {
-  title: todo.title,
-  description: todo.description,
-  priority: todo.priority || "medium",
-  completed: !todo.completed
-}
+          title: todo.title,
+          description: todo.description,
+          priority: todo.priority || "medium",
+          completed: !todo.completed,
+          status: newStatus,
+          order: todo.order || 0
+        }
       );
 
       fetchTodos();
 
     } catch (error) {
 
-      console.log("Error updating todo:", error);
+      console.log("Error updating todo:",error);
 
     }
+
   };
 
+  const updateTodo = async (
+    id,
+    updatedData
+  ) => {
 
-  // UPDATE TODO
-  const updateTodo = async (id, updatedData) => {
+
     try {
 
       await axios.put(
@@ -85,56 +89,188 @@ const App = () => {
 
     } catch (error) {
 
-      console.log("Error updating todo:", error);
+      console.log(
+        "Error updating todo:",
+        error
+      );
 
     }
+
   };
 
 
-  // FILTER TODOS
-  const filteredTodos = todos.filter((todo) => {
+  const moveTodo = async (
+    draggedId,
+    targetId,
+    targetStatus
+  ) => {
 
-    if (filter === "active") {
-      return !todo.completed;
+    try {
+
+      const draggedTodo =
+        todos.find(
+          (todo) =>
+            todo._id === draggedId
+        );
+
+      if (!draggedTodo) return;
+
+
+      const currentStatus =
+        draggedTodo.status || "todo";
+
+
+
+      let targetTodos = todos
+        .filter(
+          (todo) =>
+            (todo.status || "todo") ===
+            targetStatus
+        )
+        .sort(
+          (a, b) =>
+            (a.order || 0) -
+            (b.order || 0)
+        );
+
+
+
+      targetTodos =
+        targetTodos.filter(
+          (todo) =>
+            todo._id !== draggedId
+        );
+
+
+
+      let targetIndex =
+        targetTodos.length;
+
+
+      if (targetId) {
+
+        const index =
+          targetTodos.findIndex(
+            (todo) =>
+              todo._id === targetId
+          );
+
+        if (index !== -1) {
+          targetIndex = index;
+        }
+
+      }
+
+
+
+      targetTodos.splice(
+        targetIndex,
+        0,
+        {
+          ...draggedTodo,
+          status: targetStatus
+        }
+      );
+
+
+
+      const otherTodos =
+        todos.filter(
+          (todo) =>
+            todo._id !== draggedId &&
+            (todo.status || "todo") !==
+              targetStatus
+        );
+
+
+      const updatedTargetTodos =
+        targetTodos.map(
+          (todo, index) => ({
+            ...todo,
+            status: targetStatus,
+            order: index
+          })
+        );
+
+
+      setTodos([
+        ...otherTodos,
+        ...updatedTargetTodos
+      ]);
+
+
+      // SAVE TO DATABASE
+
+      for (
+        const todo of updatedTargetTodos
+      ) {
+
+        await axios.put(
+          `http://localhost:7200/api/todos/${todo._id}`,
+          {
+            title: todo.title,
+            description:
+              todo.description,
+            priority:
+              todo.priority || "medium",
+            completed:
+              todo.status === "done",
+            status: todo.status,
+            order: todo.order
+          }
+        );
+
+      }
+
+    } catch (error) {
+
+      console.log(
+        "Error moving todo:",
+        error
+      );
+
+      fetchTodos();
+
     }
 
-    if (filter === "completed") {
-      return todo.completed;
-    }
-
-    return true;
-
-  });
+  };
 
 
-  const priorityOrder = {
-  high: 1,
-  medium: 2,
-  low: 3
-};
+  const filteredTodos =
+    todos.filter((todo) => {
 
-const sortedTodos = [...filteredTodos].sort(
-  (a, b) =>
-    (priorityOrder[a.priority] || 2) -
-    (priorityOrder[b.priority] || 2)
-);
+      if (filter === "active") {
+        return !todo.completed;
+      }
 
+      if (filter === "completed") {
+        return todo.completed;
+      }
 
-  // COUNTS
+      return true;
+
+    });
+
+    
+
   const totalTodos = todos.length;
 
-  const activeTodos = todos.filter(
-    (todo) => !todo.completed
-  ).length;
-
-  const completedTodos = todos.filter(
-    (todo) => todo.completed
-  ).length;
+  const completedTodos =
+    todos.filter(
+      (todo) => todo.completed
+    ).length;
 
 
-  // LOAD TODOS
+  const activeTodos =
+    todos.filter(
+      (todo) => !todo.completed
+    ).length;
+
+
   useEffect(() => {
+
     fetchTodos();
+
   }, []);
 
 
@@ -142,7 +278,7 @@ const sortedTodos = [...filteredTodos].sort(
 
     <div className="app">
 
-      {/* HEADER */}
+
 
       <header className="app-header">
 
@@ -153,17 +289,22 @@ const sortedTodos = [...filteredTodos].sort(
           </div>
 
           <div>
-            <h1>My Tasks</h1>
+
+            <h1>
+              My To-Do's
+            </h1>
 
             <p>
-              Organize your day, one task at a time.
+              Organize your day,
+              one task at a time!
             </p>
+
           </div>
 
         </div>
 
 
-        {/* <div className="task-summary">
+        <div className="task-summary">
 
           <strong>
             {activeTodos}
@@ -173,25 +314,20 @@ const sortedTodos = [...filteredTodos].sort(
             active tasks
           </span>
 
-        </div> */}
+        </div>
 
       </header>
 
 
-      {/* MAIN */}
-
       <main>
 
 
-        {/* ADD TODO */}
 
         <section className="add-section">
 
           <div className="section-heading">
 
-            <span className="section-number">
-              01
-            </span>
+            
 
             <div>
 
@@ -200,7 +336,8 @@ const sortedTodos = [...filteredTodos].sort(
               </h2>
 
               <p>
-                What's something you want to accomplish?
+                What's something you
+                want to accomplish?
               </p>
 
             </div>
@@ -215,32 +352,26 @@ const sortedTodos = [...filteredTodos].sort(
         </section>
 
 
-        {/* TASK SECTION */}
 
         <section className="tasks-section">
 
 
           <div className="tasks-header">
 
-            <div>
+            <div className="section-heading small">
 
-              <div className="section-heading small">
+              
 
-                <span className="section-number">
-                  02
-                </span>
+              <div>
 
-                <div>
+                <h2>
+                  Your tasks
+                </h2>
 
-                  <h2>
-                    Your tasks
-                  </h2>
-
-                  <p>
-                    {totalTodos} total · {completedTodos} completed
-                  </p>
-
-                </div>
+                <p>
+                   total {totalTodos} Tasks   |    {"  "}
+                   Completed {completedTodos} Tasks
+                </p>
 
               </div>
 
@@ -251,55 +382,40 @@ const sortedTodos = [...filteredTodos].sort(
 
             <div className="filter-buttons">
 
-              <button
-                className={
-                  filter === "all"
+              <button className={filter === "all"
                     ? "active-filter"
                     : ""
                 }
-                onClick={() => setFilter("all")}
-              >
-                All
+                onClick={() => setFilter("all")}> All
               </button>
 
-
-              <button
-                className={
-                  filter === "active"
+              <button className={filter === "active"
                     ? "active-filter"
                     : ""
                 }
-                onClick={() => setFilter("active")}
-              >
-                Active
+                onClick={() => setFilter("active")}> Active
               </button>
 
-
-              <button
-                className={
-                  filter === "completed"
+              <button className={filter === "completed"
                     ? "active-filter"
                     : ""
                 }
-                onClick={() => setFilter("completed")}
-              >
-                Completed
+                onClick={() => setFilter("completed")}> Completed
               </button>
 
             </div>
 
-            
-
           </div>
 
 
-          {/* TODO LIST */}
+          {/* KANBAN BOARD */}
 
           <TodoList
-            todos={sortedTodos}
+            todos={filteredTodos}
             onDelete={deleteTodo}
             onToggle={toggleTodo}
             onUpdate={updateTodo}
+            onMove={moveTodo}
           />
 
         </section>
@@ -312,11 +428,11 @@ const sortedTodos = [...filteredTodos].sort(
       <footer className="app-footer">
 
         <span>
-          &copy; 2026 ToDo
+          &copy; 2026, To-Do
         </span>
 
         <span>
-          Stay focused. Get things done!
+          Stay focused. Get things done.
         </span>
 
       </footer>
@@ -324,6 +440,7 @@ const sortedTodos = [...filteredTodos].sort(
     </div>
 
   );
+
 };
 
 export default App;
