@@ -12,7 +12,7 @@ const options = {
 
     servers: [
       {
-        url: "http://localhost:7200"
+        url: process.env.API_BASE_URL || "http://localhost:7200"
       }
     ]
   },
@@ -24,4 +24,4 @@ const swaggerSpec = swaggerJsdoc(options);
 
 module.exports = swaggerSpec;
 
-// http://localhost:7200/api-docs
+// This is url for testing the swagger -> http://localhost:7200/api-docs

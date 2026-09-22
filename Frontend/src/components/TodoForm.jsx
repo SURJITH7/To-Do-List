@@ -19,7 +19,7 @@ const TodoForm = ({ fetchTodos }) => {
 
     try {
 
-      await axios.post("http://localhost:7200/api/todos",
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/todos`,
         {
           title,
           description,

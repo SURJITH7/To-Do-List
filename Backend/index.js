@@ -25,6 +25,6 @@ app.use("/api/todos", todoRoutes);
 
 const PORT = process.env.PORT || 7200;
 
-app.listen(PORT, () => {
+app.listen(PORT,"0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
 });

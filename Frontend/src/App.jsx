@@ -17,7 +17,7 @@ const App = () => {
 
     try {
 
-      const response = await axios.get("http://localhost:7200/api/todos");
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/todos`);
       setTodos(response.data.todos);
     
     } catch (error) {
@@ -29,7 +29,7 @@ const App = () => {
   
   const deleteTodo = async (id) => {
     try {
-      await axios.delete(`http://localhost:7200/api/todos/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/todos/${id}`);
       fetchTodos();
 
     } catch (error) {
@@ -51,7 +51,7 @@ const App = () => {
       } else {
         newStatus = "done";
       }
-      await axios.put(`http://localhost:7200/api/todos/${todo._id}`,
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/todos/${todo._id}`,
         {
           title: todo.title,
           description: todo.description,
@@ -80,19 +80,13 @@ const App = () => {
 
     try {
 
-      await axios.put(
-        `http://localhost:7200/api/todos/${id}`,
-        updatedData
-      );
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/todos/${id}`,updatedData);
 
       fetchTodos();
 
     } catch (error) {
 
-      console.log(
-        "Error updating todo:",
-        error
-      );
+      console.log("Error updating todo:", error);
 
     }
 
@@ -206,7 +200,7 @@ const App = () => {
       ) {
 
         await axios.put(
-          `http://localhost:7200/api/todos/${todo._id}`,
+          `${import.meta.env.VITE_API_URL}/api/todos/${todo._id}`,
           {
             title: todo.title,
             description:
