@@ -833,4 +833,35 @@ body {
   .kanban-board {
     grid-template-columns: 1fr;
   }
+
+  .kanban-task {
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .task-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .priority-badge {
+    align-self: flex-start;
+    width: fit-content;
+  }
+
+  .todo-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .todo-actions button {
+    width: 100%;
+    min-width: 0;
+    padding: 9px 4px;
+    font-size: 12px;
+  }
 }
